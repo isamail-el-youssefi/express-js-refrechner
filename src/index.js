@@ -1,6 +1,9 @@
 import express, { query } from "express";
 
+// middleware
 const app = express();
+
+app.use(express.json());
 
 const fakeUsers = [
   { id: 1, name: "soth", car: "fiord" },
@@ -38,7 +41,6 @@ app.get("/api/users/:id", (req, res) => {
 });
 
 //?? Query params localhost:3000/users?filter=value&value=value
-
 app.get("/api/users", (req, res) => {
   console.log(req.query);
   const { filter, value } = req.query;
@@ -52,6 +54,18 @@ app.get("/api/users", (req, res) => {
 
   // if filter and value are not provided
   http: res.send(fakeUsers);
+});
+
+//?? Post Request
+app.post("/api/users", (req, res) => {
+  console.log(req.body);
+  const { body } = req;
+  const newUser = {
+    id: Date.now(),
+    ...body,
+  };
+  fakeUsers.push(newUser);
+  return res.send(fakeUsers);
 });
 
 app.listen(3000, () => {
