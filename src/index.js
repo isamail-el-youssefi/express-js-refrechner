@@ -78,11 +78,48 @@ app.put("/api/users/:id", (req, res) => {
 
   const findUserIndex = fakeUsers.findIndex((user) => user.id === parsedId);
   console.log(findUserIndex);
-/*   if (findUserIndex === -1) {
+  if (findUserIndex === -1) {
     return res.status(404).send({ msg: "User not found" });
-  } */
+  }
+
   fakeUsers[findUserIndex] = { id: parsedId, ...body };
   res.send(fakeUsers);
+});
+
+//?? Put request
+app.patch("/api/users/:id", (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return res.status(400).send({ msg: "Invalid id" });
+
+  const findUserIndex = fakeUsers.findIndex((user) => user.id === parsedId);
+  console.log(findUserIndex);
+  if (findUserIndex === -1) {
+    return res.status(404).send({ msg: "User not found" });
+  }
+
+  fakeUsers[findUserIndex] = { ...fakeUsers[findUserIndex], ...body };
+  res.send(fakeUsers);
+});
+
+//?? Delete request
+app.delete("/api/users/:id", (req, res) => {
+  const { id } = req.params;
+  const parsedId = id * 1;
+  console.log(parsedId);
+
+  if (isNaN(parsedId)) return res.status(400).send({ msg: "Invalid id" });
+
+  const findUserIndex = fakeUsers.findIndex((user) => user.id === parsedId);
+  if (findUserIndex === -1) {
+    return res.status(404).send({ msg: "User not found" });
+  }
+
+  fakeUsers.splice(findUserIndex, 1);
+  
+  return res.send(fakeUsers);
 });
 
 app.listen(3000, () => {
