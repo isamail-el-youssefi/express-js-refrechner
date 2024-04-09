@@ -1,5 +1,5 @@
 import express from "express";
-import { query, validationResult } from "express-validator";
+import { query, body, validationResult } from "express-validator";
 
 // middleware
 const app = express();
@@ -84,16 +84,32 @@ app.get(
 );
 
 //?? Post Request
-app.post("/api/users", (req, res) => {
-  console.log(req.body);
-  const { body } = req;
-  const newUser = {
-    id: Date.now(),
-    ...body,
-  };
-  fakeUsers.push(newUser);
-  return res.send(fakeUsers);
-});
+app.post(
+  "/api/users",
+  [
+    body("name")
+      .notEmpty()
+      .withMessage("name cannot be empty")
+      .isLength({ min: 5, max: 32 })
+      .withMessage("must be between 5 and 32 characters")
+      .isString()
+      .withMessage("must be a string"),
+    body("car").notEmpty().withMessage("car cannot be empty"),
+  ],
+  (req, res) => {
+    const result = validationResult(req);
+    console.log(result);
+
+    console.log(req.body);
+    const { body } = req;
+    const newUser = {
+      id: Date.now(),
+      ...body,
+    };
+    fakeUsers.push(newUser);
+    return res.send(fakeUsers);
+  }
+);
 
 //?? Put request
 app.put("/api/users/:id", (req, res) => {
