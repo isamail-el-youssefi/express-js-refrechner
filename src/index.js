@@ -70,6 +70,8 @@ app.get(
 
     const result = validationResult(req);
     console.log(result);
+    if (!result.isEmpty())
+      return res.status(400).send(result.array().map((err) => err.msg));
 
     const { filter, value } = req.query;
 
@@ -99,6 +101,8 @@ app.post(
   (req, res) => {
     const result = validationResult(req);
     console.log(result);
+    if (!result.isEmpty())
+      return res.status(400).send(result.array().map((err) => err.msg));
 
     console.log(req.body);
     const { body } = req;
