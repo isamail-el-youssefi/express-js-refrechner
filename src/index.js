@@ -5,6 +5,19 @@ const app = express();
 
 app.use(express.json());
 
+const globalMiddleware = (req, res, next) => {
+  console.log(req.method, req.path, "HI IAM MIDDLEWARE");
+  next();
+};
+
+const localMiddleware = (req, res, next) => {
+  console.log("HI IAM LOCAL MIDDLEWARE");
+  next();
+};
+
+// enabling the middleware for all the routes
+app.use(globalMiddleware);
+
 const fakeUsers = [
   { id: 1, name: "soth", car: "fiord" },
   { id: 2, name: "smail", car: "toyota" },
@@ -15,7 +28,8 @@ const fakeUsers = [
   { id: 7, name: "imad", car: "rand rover" },
 ];
 
-app.get("/", (req, res) => {
+// enabling the middleware for this route only
+app.get("/", localMiddleware, (req, res) => {
   res.status(201).send("Hello, World!"); //sending simpple text
 });
 
@@ -110,7 +124,9 @@ app.delete("/api/users/:id", (req, res) => {
   const parsedId = id * 1;
   console.log(parsedId);
 
-  if (isNaN(parsedId)) return res.status(400).send({ msg: "Invalid id" });
+  if (isNaN(parsedId)) {
+    return res.status(400).send({ msg: "Invalid id" });
+  }
 
   const findUserIndex = fakeUsers.findIndex((user) => user.id === parsedId);
   if (findUserIndex === -1) {
@@ -118,7 +134,7 @@ app.delete("/api/users/:id", (req, res) => {
   }
 
   fakeUsers.splice(findUserIndex, 1);
-  
+
   return res.send(fakeUsers);
 });
 
