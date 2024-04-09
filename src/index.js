@@ -1,4 +1,5 @@
-import express, { query } from "express";
+import express from "express";
+import { query, validationResult } from "express-validator";
 
 // middleware
 const app = express();
@@ -55,20 +56,32 @@ app.get("/api/users/:id", (req, res) => {
 });
 
 //?? Query params localhost:3000/users?filter=value&value=value
-app.get("/api/users", (req, res) => {
-  console.log(req.query);
-  const { filter, value } = req.query;
-  const filterByValue = fakeUsers.find((user) => user[filter].includes(value));
+app.get(
+  "/api/users",
+  query("filter")
+    .isString()
+    .withMessage("must be a string")
+    .notEmpty()
+    .withMessage("must not be empty")
+    .isLength({ min: 3, max: 10 })
+    .withMessage("must be at least 3 max 10"),
+  (req, res) => {
+    console.log(req.query);
 
-  if (!filterByValue) return res.status(400).send({ msg: "Invalid value" });
+    const result = validationResult(req);
+    console.log(result);
 
-  // when filter and value are provided
-  if (filter && value) return res.send(filterByValue);
-  //localhost:3000/api/users?filter=name&value=so ===>>>  [{"id":1,"name":"soth","car":"fiord"},{"id":4,"name":"sof1","car":"rav4"}]
+    const { filter, value } = req.query;
 
-  // if filter and value are not provided
-  http: res.send(fakeUsers);
-});
+    // when filter and value are provided
+    if (filter && value)
+      return res.send(fakeUsers.filter((user) => user[filter].includes(value)));
+    //localhost:3000/api/users?filter=name&value=so ===>>>  [{"id":1,"name":"soth","car":"fiord"},{"id":4,"name":"sof1","car":"rav4"}]
+
+    // if filter and value are not provided
+    res.send(fakeUsers);
+  }
+);
 
 //?? Post Request
 app.post("/api/users", (req, res) => {
