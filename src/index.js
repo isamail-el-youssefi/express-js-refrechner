@@ -1,5 +1,10 @@
 import express from "express";
-import { query, body, validationResult } from "express-validator";
+import {
+  query,
+  body,
+  validationResult,
+  matchedData,
+} from "express-validator";
 
 // middleware
 const app = express();
@@ -104,11 +109,12 @@ app.post(
     if (!result.isEmpty())
       return res.status(400).send(result.array().map((err) => err.msg));
 
-    console.log(req.body);
-    const { body } = req;
+    const validatedData = matchedData(req);
+
+    //const { body } = req;
     const newUser = {
       id: Date.now(),
-      ...body,
+      ...validatedData,
     };
     fakeUsers.push(newUser);
     return res.send(fakeUsers);
