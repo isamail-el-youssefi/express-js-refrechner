@@ -8,7 +8,7 @@ const app = express();
 
 // Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option.
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser("randomsecret"));
 
 const globalMiddleware = (req, res, next) => {
   console.log(req.method, req.path, "HI IAM MIDDLEWARE");
@@ -31,6 +31,7 @@ app.get("/", localMiddleware, (req, res) => {
   console.log(req.header.cookie);
   res.cookie("cookieExperimental", "hello im a cookie", {
     maxAge: 15000,
+    signed: true,
   }); // this is the the route ("/") that you must visit first in order for the user to kind like authenticate have the cookies
   res.status(201).send("Hello, World!"); //sending simpple text
 });
