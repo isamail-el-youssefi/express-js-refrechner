@@ -4,7 +4,10 @@ import {
   body,
   validationResult,
   matchedData,
+  checkSchema,
 } from "express-validator";
+import { createUserValidationSchema } from "./utils/validationSchemas.mjs";
+import { fakeUsers } from "./utils/data.mjs";
 
 // middleware
 const app = express();
@@ -23,16 +26,6 @@ const localMiddleware = (req, res, next) => {
 
 // enabling the middleware for all the routes
 app.use(globalMiddleware);
-
-const fakeUsers = [
-  { id: 1, name: "soth", car: "fiord" },
-  { id: 2, name: "smail", car: "toyota" },
-  { id: 3, name: "hamza", car: "honda" },
-  { id: 4, name: "sof1", car: "rav4" },
-  { id: 5, name: "mourad", car: "dacia" },
-  { id: 6, name: "marra", car: "renault" },
-  { id: 7, name: "imad", car: "rand rover" },
-];
 
 // enabling the middleware for this route only
 app.get("/", localMiddleware, (req, res) => {
@@ -91,35 +84,22 @@ app.get(
 );
 
 //?? Post Request
-app.post(
-  "/api/users",
-  [
-    body("name")
-      .notEmpty()
-      .withMessage("name cannot be empty")
-      .isLength({ min: 5, max: 32 })
-      .withMessage("must be between 5 and 32 characters")
-      .isString()
-      .withMessage("must be a string"),
-    body("car").notEmpty().withMessage("car cannot be empty"),
-  ],
-  (req, res) => {
-    const result = validationResult(req);
-    console.log(result);
-    if (!result.isEmpty())
-      return res.status(400).send(result.array().map((err) => err.msg));
+app.post("/api/users", checkSchema(createUserValidationSchema), (req, res) => {
+  const result = validationResult(req);
+  console.log(result);
+  if (!result.isEmpty())
+    return res.status(400).send(result.array().map((err) => err.msg));
 
-    const validatedData = matchedData(req);
+  const validatedData = matchedData(req);
 
-    //const { body } = req;
-    const newUser = {
-      id: Date.now(),
-      ...validatedData,
-    };
-    fakeUsers.push(newUser);
-    return res.send(fakeUsers);
-  }
-);
+  //const { body } = req;
+  const newUser = {
+    id: Date.now(),
+    ...validatedData,
+  };
+  fakeUsers.push(newUser);
+  return res.send(fakeUsers);
+});
 
 //?? Put request
 app.put("/api/users/:id", (req, res) => {
