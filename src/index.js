@@ -20,8 +20,12 @@ const localMiddleware = (req, res, next) => {
   console.log("HI IAM LOCAL MIDDLEWARE");
   next();
 };
+
 // enabling the middleware for this route only
 app.get("/", localMiddleware, (req, res) => {
+  res.cookie("cookie experimental", "hello im a cookie", {
+    maxAge: 15000,
+  });  // this is the the route ("/") that you must visit first in order for the user to kind like authenticate have the cookies
   res.status(201).send("Hello, World!"); //sending simpple text
 });
 
