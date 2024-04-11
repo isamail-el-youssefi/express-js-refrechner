@@ -63,7 +63,12 @@ app.post("/api/auth", (req, res) => {
   return res.status(200).send({ msg: "AUTHENTICATED" });
 });
 
-
+//!! Can't access this route if not authenticated
+app.get("/api/auth/status", (req, res) => {
+  return req.session.user
+    ? res.status(200).send(req.session.user) // Available for 20 second
+    : res.status(401).send({ msg: "UNAUTHENTICATED" });
+});
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
