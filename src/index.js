@@ -1,11 +1,14 @@
 import express from "express";
 import userRouter from "./routes/users.mjs";
+import productRouter from "./routes/product.mjs";
+import cookieParser from "cookie-parser";
 
 // Instantiating express to variable app
 const app = express();
 
 // Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option.
 app.use(express.json());
+app.use(cookieParser());
 
 const globalMiddleware = (req, res, next) => {
   console.log(req.method, req.path, "HI IAM MIDDLEWARE");
@@ -15,6 +18,7 @@ const globalMiddleware = (req, res, next) => {
 app.use(globalMiddleware);
 
 app.use(userRouter);
+app.use(productRouter);
 
 const localMiddleware = (req, res, next) => {
   console.log("HI IAM LOCAL MIDDLEWARE");
@@ -23,9 +27,11 @@ const localMiddleware = (req, res, next) => {
 
 // enabling the middleware for this route only
 app.get("/", localMiddleware, (req, res) => {
-  res.cookie("cookie experimental", "hello im a cookie", {
+  console.log(req.cookies);
+  console.log(req.header.cookie);
+  res.cookie("cookieExperimental", "hello im a cookie", {
     maxAge: 15000,
-  });  // this is the the route ("/") that you must visit first in order for the user to kind like authenticate have the cookies
+  }); // this is the the route ("/") that you must visit first in order for the user to kind like authenticate have the cookies
   res.status(201).send("Hello, World!"); //sending simpple text
 });
 
