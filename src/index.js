@@ -77,13 +77,16 @@ app.get("/api/auth/status", (request, res) => {
 }); */
 
 //!! Authentication with PassportJs (passing the passport callback here to invoke it when the post request is made by the user)
-app.post(
-  "/api/auth",
-  passport.authenticate("local"),
-  (request, responce) => {
-    console.log(request.body.username)
-  }
-);
+app.post("/api/auth", passport.authenticate("local"), (request, responce) => {
+  responce.sendStatus(200);
+});
+
+app.get("/api/auth/status", (request, responce) => {
+  console.log("inside auth/status");
+  console.log(request.user);
+  if (request.user) return responce.status(200).send(request.user);
+  return responce.status(401).send({ msg: "UNAUTHENTICATED" });
+});
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
