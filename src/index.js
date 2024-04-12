@@ -4,6 +4,7 @@ import productRouter from "./routes/product.mjs";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import { fakeUsers } from "./utils/data.mjs";
+import passport from "passport";
 
 // Instantiating express to variable app
 const app = express();
@@ -22,6 +23,9 @@ app.use(
   })
 );
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 const globalMiddleware = (req, res, next) => {
   console.log(req.method, req.path, "HI IAM MIDDLEWARE");
   next();
@@ -39,8 +43,6 @@ const localMiddleware = (req, res, next) => {
 
 // enabling the middleware for this route only
 app.get("/", localMiddleware, (req, res) => {
-  console.log(req.cookies);
-  console.log(req.header.cookie);
   // we did take the cookie from the server responce bz the server who is creatin the cookie
   res.cookie("cookieExperimental", "hello im a cookie", {
     maxAge: 15000,
@@ -56,17 +58,20 @@ app.post("/api/auth", (req, res) => {
     (user) => user.name === name && user.password === password
   );
   if (!findUser) return res.status(401).send({ msg: "BAD CREDENTIALS" });
-
-  // dynamic property (user) after the req.session {chof modkira for better understanding}
+  // dynamic property (user) {like mapping over all the users} after the req.session {chof modkira for better understanding}
   // req.session.user is being dynamically assigned a value during the execution of the code.
-  req.session.user = findUser; // setting up the cookie
+  req.session.user = findUser; // setting up the cookie //?? All the 7 users in the arraw with the right credentials can have the session inside a cookie (Authenticated) Thats why the user after req.session is a dynamic property
   return res.status(200).send({ msg: "AUTHENTICATED" });
 });
+//?? the server can manage not only one but many sessions and map each sessiion to diffrent users
 
 //!! Can't access this route if not authenticated
-app.get("/api/auth/status", (req, res) => {
-  return req.session.user
-    ? res.status(200).send(req.session.user) // Available for 20 second
+app.get("/api/auth/status", (request, res) => {
+  request.sessionStore.get(request.sessionID, (err, session) => {
+    console.log(session);
+  });
+  return request.session.user //
+    ? res.status(200).send(request.session.user) // Available for 20 seconds
     : res.status(401).send({ msg: "UNAUTHENTICATED" });
 });
 
