@@ -1,5 +1,6 @@
 import express from "express";
 import userRouter from "./routes/users.mjs";
+import userRouterDb from "./routes/usersDB.mjs";
 import productRouter from "./routes/product.mjs";
 import cookieParser from "cookie-parser";
 import session from "express-session";
@@ -42,6 +43,7 @@ const globalMiddleware = (req, res, next) => {
 app.use(globalMiddleware);
 
 app.use(userRouter);
+app.use(userRouterDb);
 app.use(productRouter);
 
 const localMiddleware = (req, res, next) => {
