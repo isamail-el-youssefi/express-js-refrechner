@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import { fakeUsers } from "./utils/data.mjs";
 import passport from "passport";
+import "./auth-strategies/local-strategy.mjs";
 
 // Instantiating express to variable app
 const app = express();
@@ -51,7 +52,7 @@ app.get("/", localMiddleware, (req, res) => {
   res.status(201).send("Hello, World!"); //sending simpple text
 });
 
-//!! Fake authentication to understand well the session concept
+/* //!! Fake authentication to understand well the session concept
 app.post("/api/auth", (req, res) => {
   const { name, password } = req.body;
   const findUser = fakeUsers.find(
@@ -73,7 +74,16 @@ app.get("/api/auth/status", (request, res) => {
   return request.session.user //
     ? res.status(200).send(request.session.user) // Available for 20 seconds
     : res.status(401).send({ msg: "UNAUTHENTICATED" });
-});
+}); */
+
+//!! Authentication with PassportJs (passing the passport callback here to invoke it when the post request is made by the user)
+app.post(
+  "/api/auth",
+  passport.authenticate("local"),
+  (request, responce) => {
+    console.log(request.body.username)
+  }
+);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
