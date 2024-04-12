@@ -5,10 +5,17 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import { fakeUsers } from "./utils/data.mjs";
 import passport from "passport";
+import mongoose from "mongoose";
+import "dotenv/config";
 import "./auth-strategies/local-strategy.mjs";
 
 // Instantiating express to variable app
 const app = express();
+
+mongoose
+  .connect(process.env.DB_URI)
+  .then(() => console.log("Connected to DB"))
+  .catch((err) => console.error(`Error connecting to DB: ${err}`));
 
 // Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option.
 app.use(express.json());
