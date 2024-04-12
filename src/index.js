@@ -81,11 +81,24 @@ app.post("/api/auth", passport.authenticate("local"), (request, responce) => {
   responce.sendStatus(200);
 });
 
+//!! Can't access this route if not authenticated
 app.get("/api/auth/status", (request, responce) => {
   console.log("inside auth/status");
   console.log(request.user);
+  // if the user is logged in
   if (request.user) return responce.status(200).send(request.user);
   return responce.status(401).send({ msg: "UNAUTHENTICATED" });
+});
+
+//!! Logout by destroying the session
+app.post("/api/auth/logout", (request, responce) => {
+  // if the user not logged in
+  !request.user
+    ? responce.sendStatus(401)
+    : request.logout((err) => {
+        if (err) return responce.sendStatus(400);
+        return responce.sendStatus(200);
+      });
 });
 
 app.listen(3000, () => {
