@@ -27,7 +27,7 @@ app.use(
     saveUninitialized: false,
     resave: false,
     cookie: {
-      maxAge: 20000,
+      maxAge: 30000 * 50,
     },
   })
 );
@@ -95,8 +95,9 @@ app.get("/api/auth/status", (request, responce) => {
   console.log("inside auth/status");
   console.log(request.user);
   // if the user is logged in
-  if (request.user) return responce.status(200).send(request.user);
-  return responce.status(401).send({ msg: "UNAUTHENTICATED" });
+  request.user
+    ? responce.status(200).send(request.user)
+    : responce.status(401).send({ msg: "UNAUTHENTICATED" });
 });
 
 //!! Logout by destroying the session

@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy } from "passport-local";
 import { fakeUsers } from "../utils/data.mjs";
-
+import { User } from "../mongoose/schema/userSchema.mjs";
 // storing the user.id in the session
 passport.serializeUser((user, done) => {
   console.log("inside serializeUser");
@@ -9,11 +9,11 @@ passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser((id, done) => {
+passport.deserializeUser(async(id, done) => {
   console.log("inside deserializeUser");
   console.log(`deserializeUser id ${id}`);
   try {
-    const findUser = fakeUsers.find((user) => user.id === id);
+    const findUser = await User.findById(id);
     if (!findUser) throw new Error("User not found");
     done(null, findUser);
   } catch (err) {
@@ -23,16 +23,15 @@ passport.deserializeUser((id, done) => {
 
 // Strategy is a class that we need to create an instance of
 export default passport.use(
-  new Strategy((username, password, done) => {
+  new Strategy(async (username, password, done) => {
     console.log(`password: ${password}`);
     console.log(`username: ${username}`);
     try {
-      const findUser = fakeUsers.find((user) => user.username === username);
+      const findUser = await User.findOne({ username });
       if (!findUser) throw new Error("User not found");
-      if (findUser.password !== password) throw new Error("Wrong credentials");
+      if (findUser.password !== password) throw new Error("Bad credentials");
       done(null, findUser);
     } catch (err) {
-      // Error object bz it contains 2 errors from the try part
       done(err, null);
     }
   })
