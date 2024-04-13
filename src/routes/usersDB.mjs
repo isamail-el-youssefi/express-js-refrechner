@@ -7,6 +7,7 @@ import {
   validationResult,
 } from "express-validator";
 import { User } from "../mongoose/schema/userSchema.mjs";
+import { hashedPassword } from "../utils/hashPassword.mjs";
 
 const router = Router();
 
@@ -22,6 +23,8 @@ router.post(
     }
 
     const data = matchedData(req); //we use this one instead of req.body because it will return only the data that matches the schema
+    // Hashing the password
+    data.password = await hashedPassword(data.password);
     const { body } = req;
     const { username } = req.body;
 
