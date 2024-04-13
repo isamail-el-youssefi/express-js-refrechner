@@ -85,7 +85,7 @@ app.get("/api/auth/status", (request, res) => {
     : res.status(401).send({ msg: "UNAUTHENTICATED" });
 }); */
 
-//!! Authentication with PassportJs (passing the passport callback here to invoke it when the post request is made by the user)
+//!! Login || Authentication with PassportJs (passing the passport callback here to invoke it when the post request is made by the user)
 app.post("/api/auth", passport.authenticate("local"), (request, responce) => {
   responce.sendStatus(200);
 });
